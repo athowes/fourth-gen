@@ -19,6 +19,7 @@ As the HIV epidemic enters its fifth decade, meeting the need for timely, cost-e
 Although household surveys provide estimates which are nationally representative, they are prohibitively expensive to carry out, and so only typically occur every four or five years. Furthermore, household surveys are statistically inefficient, failing to leverage prior responses or other sources of data to guide sampling effort.
 We propose the use of an adaptive, model-based, sampling approach called Bayesian survey design (BSD).
 We show that our approach enhances the efficiency and responsiveness of HIV surveys, whilst reducing the cost and logistical complexity compared to existing practise.
+To do so, we use the Manicaland cohort study to simulate survey designs and empirically evaluate their statistical properties.
 
 ```{r echo = FALSE}
 options(scipen = 100)
@@ -54,7 +55,7 @@ Other relevant points to discuss include covariate adjustment, matching, adaptiv
 
 The remainder of this paper is organised as follows.
 In Section \ref{sec:background} we review the existing approach of national household surveys, before describing ideas from probabilistic numerics which we apply in Section \ref{sec:methodology} to create a Bayesian approach to survey design.
-In Section \ref{sec:experiments} we demonstrate our approach via simulations using population cohort data from the Manicaland Project population HIV cohort.
+In Section \ref{sec:experiments} we demonstrate our approach via simulations using population cohort data from the Manicaland Project.
 We discuss our conclusions and recommendations for future work in Section \ref{sec:discussion}.
 
 # Background\label{sec:background}
@@ -196,8 +197,6 @@ Further work in BSD may look to incorporate additional poststratification variab
 
 # Experiments\label{sec:experiments}
 
-## Synthetic indicator data
-
 ## Population cohort indicator data
 
 As a part of the  Manicaland general population cohort study [@Gregsone015898] six censuses of all households have been taken across twelve sites in Manicaland province, Zimbabwe between 1998 and 2013.
@@ -216,7 +215,7 @@ We use simulations to carry out two experiments:
 
 ## Empirical simulations
 
-We consider the survey sampling design strategies given by Table~\ref{tab:sampling-designs}.
+We consider the survey sampling design strategies given by Table \ref{tab:sampling-designs}.
 We simulate $S$ designs indexed by $s$ from each strategy.
 For each design strategy $d$ and round $t$ of the survey we compute direct estimates $\hat p_{dt}^s$ for the proportion of individuals with value one for the indicator under consideration at round $t$.
 We compare the collection of direct survey estimates $\{\hat p_{dt}^s\}_{s = 1}^S$ to the true proportion $p_t$ using the mean squared error (MSE), which may be decomposed as a sum of variance and bias terms as follows
