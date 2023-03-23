@@ -85,18 +85,18 @@ Rather than managing these considerations with techniques like clustering and st
 BSD takes inspiration from probabilistic numerical methods [@cockayne2019bayesian] like Bayesian optimisation [@movckus1975bayesian; @snoek2012practical] and Bayesian numerical integration [@diaconis1988bayesian; @briol2019probabilistic; @zhu2020bayesian] which use statistical models to approach numerical analysis problems.
 
 For example, in numerical integration design points $q_{1:J} \in \mathcal{Q}^n$ may be used to estimate integrals
-\begin{equation}
+$$
 \mathbb{E}_p[f] = \int_\mathcal{Q} f(q) p(q) \text{d}q \approx \frac{1}{J} \sum_{j = 1}^J f(q_j) = \widehat{\mathbb{E}}_p[f], \label{eq:bq}
-\end{equation}
+$$
 where $f$ is the objective function and $p$ is a probability density.
 In adaptive Bayesian numerical integration, design points $q_{j+1}$ are sequentially chosen based on a model $\hat f$ for the objective function trained on all previous data $f(q_{1:j})$.
 This is in contrast to classical quadrature approaches which typically select all $J$ design points at the outset.
 The model $\hat f$ is combined with an acquisition function $a: \mathcal{Q} \to \mathbb{R}$ whose role is to encourage selection of points which result in favourable estimator properties.
 An example of such a property is minimising the variance.
 Given data $q_{1:n}$, the next point selected to be included in the design $q_{i + 1}$ can be found by maximising the acquisition function
-\begin{equation}
+$$
 q_{j + 1} \in \argmax_{q \in \mathcal{Q}} a(q) \label{eq:acquisition}
-\end{equation}
+$$
 This typically results in selecting design points with good coverage of the space $\mathcal{Q}$ whilst being concentrated in regions which contribute most to the integral.
 In many ways the goals of numerical integration and survey design are analogous.
 Both look to make statements about an objective function $f$ on a broader domain $\mathcal{Q}$ based upon a limited number of samples $f(q_{1:J})$.
@@ -201,17 +201,14 @@ Further work in BSD may look to incorporate additional poststratification variab
 
 As a part of the  Manicaland general population cohort study [@Gregsone015898] six censuses of all households have been taken across twelve sites in Manicaland province, Zimbabwe between 1998 and 2013.
 Manicaland province is an ideal setting:
-\begin{itemize}
-    \item Manicaland province is at the ``leading edge'' of what high HIV burden epidemics will look like in the years to come. There is a very high prevalence HIV epidemic, but HIV incidence has declined rapidly and ART coverage is high.
-    \item The province has a varied HIV epidemiology, including a mix of urban and rural populations, mix of industries, and is traversed by key transportation routes from the capital Harare to other countries.
-\end{itemize}
+
+* Manicaland province is at the ``leading edge'' of what high HIV burden epidemics will look like in the years to come. There is a very high prevalence HIV epidemic, but HIV incidence has declined rapidly and ART coverage is high.
+* The province has a varied HIV epidemiology, including a mix of urban and rural populations, mix of industries, and is traversed by key transportation routes from the capital Harare to other countries.
 
 The Manicaland data provides a unique opportunity to evaluate survey designs in a realistic setting where the truth is known.
 We use simulations to carry out two experiments:
-\begin{enumerate}
-    \item \textbf{Empirical simulations} We use historical population cohort data from the Manicaland Project population HIV cohort to simulate survey samples and compare results to the full cohort data to evaluate alternative designs and biases.
-    \item \textbf{Synthetic population simulations} We use the PopART-IBM [@pickles2021popart] applied to the Manicaland cohort population to simulate future HIV epidemic scenarios and sample designs within the population. Simulated survey results are compared to ``true'' epidemic indicators produced by model simulations. Model simulations represent HIV epidemic dynamics and health system engagements among population risk groups, demographic groups, and districts within Manicaland province. 
-\end{enumerate}
+1. **Empirical simulations** We use historical population cohort data from the Manicaland Project population HIV cohort to simulate survey samples and compare results to the full cohort data to evaluate alternative designs and biases.
+2. **Synthetic population simulations** We use the PopART-IBM [@pickles2021popart] applied to the Manicaland cohort population to simulate future HIV epidemic scenarios and sample designs within the population. Simulated survey results are compared to ``true'' epidemic indicators produced by model simulations. Model simulations represent HIV epidemic dynamics and health system engagements among population risk groups, demographic groups, and districts within Manicaland province. 
 
 ## Empirical simulations
 
@@ -219,9 +216,9 @@ We consider the survey sampling design strategies given by Table \ref{tab:sampli
 We simulate $S$ designs indexed by $s$ from each strategy.
 For each design strategy $d$ and round $t$ of the survey we compute direct estimates $\hat p_{dt}^s$ for the proportion of individuals with value one for the indicator under consideration at round $t$.
 We compare the collection of direct survey estimates $\{\hat p_{dt}^s\}_{s = 1}^S$ to the true proportion $p_t$ using the mean squared error (MSE), which may be decomposed as a sum of variance and bias terms as follows
-\begin{equation}
+$$
     \text{MSE}_{dt} = \frac{1}{S} \sum_s \left(\hat p_t - p_{dt}^s \right)^2 = \text{Var}_{dt}(\hat p_{dt}^s) + \text{Bias}(\hat p_{dt}^s, p_t)^2.
-\end{equation}
+$$
 We compare each design according to $\text{MSE}_d = \sum_t \text{MSE}_{dt}$.
 
 \begin{table}
