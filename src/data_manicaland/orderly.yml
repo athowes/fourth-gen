@@ -1,0 +1,26 @@
+script: script.R
+
+artefacts:
+  - data:
+      description: Processed Manicaland data
+      filenames:
+        - data.rds
+
+global_resources:
+  depends/manicaland.csv: manicaland.csv
+
+packages:
+  - dplyr
+  - forcats
+  - ggplot2
+  - INLA
+  - naomi
+  - readr
+  - scales
+  - sf
+  - spdep
+  - tidyr
+  - purrr
+  - stringr
+  - Matrix
+  - stats

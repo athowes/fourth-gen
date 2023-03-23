@@ -1,0 +1,37 @@
+script: script.R
+
+sources:
+  - functions.R
+
+parameters:
+  make_plots:
+    default: TRUE
+  make_gif:
+    default: TRUE
+
+artefacts:
+  - data:
+      description: Smoothed district indicator estimates for multinomial models
+      filenames:
+        - multinomial-smoothed-district-sexbehav.csv
+        - multinomial-smoothed-district-sexbehav.pdf
+
+packages:
+  - dplyr
+  - forcats
+  - ggplot2
+  - INLA
+  - readr
+  - scales
+  - sf
+  - spdep
+  - tidyr
+  - purrr
+  - stringr
+  - Matrix
+  - stats
+  - MASS
+  - data.table
+  - kernlab
+  - fields
+  - gganimate

@@ -1,0 +1,74 @@
+---
+title: "Resources on BSD"
+author:
+- name: Adam Howes
+output:
+  html_document:
+    toc: yes
+    toc_float: yes
+    toc_collapsed: yes
+    df_print: paged
+    code_folding: show
+    theme: lumen
+abstract: |
+  A compliation of links to resources which I've found useful while working on `fourth-gen`.
+---
+
+> "And don't even get me started on what Bayesians say about data collection.The mathematics of Bayesian decision theory lead inexorably to the idea that random sampling and random treatment allocation are inefficient, that the best designs are deterministic. I have no quarrel with the mathematics here, the mistake lies deeper in the philosophical foundations, the idea that the goal of statistics is to make an optimal decision." - [Objections to Bayesian statistics, Gelman](http://www.stat.columbia.edu/~gelman/research/published/badbayesmain.pdf)
+
+# Ideas
+
+* Continual approach to HIV survey sampling
+* Ideas from Bayesian optimisation and Bayesian quadrature
+* Could be more efficient in terms of training staff
+* Could allow greater understanding of temporal trends
+* Tools from information theory
+* Some way to combine this with causal inference
+
+# Messages
+
+> Are you aware of work on online Bayesian approaches to stratified survey sampling Flaxman, Seth R? i.e. for each new sample I am only making the decision about which strata I take a simple random sample from. Just thinking about what the simplest cases of BSD type approaches would be (to work up from there). With "Neyman allocation" you sample in proportion to the within strata variance so one kind of online thing to do would be to estimate the variances online to try to learn the variances whilst sampling more from the high variance strata. Quick search found ["Online Stratified Sampling: Evaluating Classifiers at Web-Scale (2010, Bennet and Carvalho, Microsoft)](https://www.cs.cmu.edu/~vitor/papers/cikm2010-carvalho.pdf)
+
+# Questions
+
+* How to square the value of randomization with the deterministic nature of optimisation in Bayesian statistics?
+
+# Notation
+
+* Collection of units (individuals) $i = 1, \ldots, N$
+* Sample of size $n$
+* Each individual $i$ is associated to covariates $x_i$ and outcomes $y_i$
+* Each individual $i$ can be associated to survey weight $w_i$
+* Covariates $x \in \mathcal{X}$
+* Covariates $\mathcal{X}$ can be divided into $\mathcal{S} \times \mathcal{T} \times \mathcal{Z}$
+    * $\mathcal{S}$ space
+    * $\mathcal{T}$ time
+    * $\mathcal{Z}$ other covariates (say features)
+* Small area estimation estimates $\bar y_I$ for a subset $I = \{ i \, | \, x_i \in \mathcal{I} \subset \mathcal{X} \}$
+* Cost of taking observation $c_i = c(x_i)$
+
+# R Packages
+
+* Found the `DeclareDesign` package from Lauren https://declaredesign.org/r/declaredesign/articles/DeclareDesign_101.html
+
+# Misc.
+
+* [How different weighting methods work](https://www.pewresearch.org/methods/2018/01/26/how-different-weighting-methods-work/)
+* [https://hbiostat.org/proj/covid19/](https://hbiostat.org/proj/covid19/) and [https://www.youtube.com/watch?v=V-XTT8HPEpw&feature=youtu.be](https://www.youtube.com/watch?v=V-XTT8HPEpw&feature=youtu.be)
+* [The Adaptive designs CONSORT Extension (ACE) statement: a checklist with explanation and elaboration guideline for reporting randomised trials that use an adaptive design](https://www.bmj.com/content/369/bmj.m115)
+* [https://stats.idre.ucla.edu/r/faq/how-do-i-analyze-survey-data-with-a-stratified-random-sampling-with-allocation-to-strata-design/](https://stats.idre.ucla.edu/r/faq/how-do-i-analyze-survey-data-with-a-stratified-random-sampling-with-allocation-to-strata-design/)
+* [University of Jyväskylä Causal models and study design](https://www.jyu.fi/science/en/maths/research/causal-models-and-study-design-)
+* [Comment by Gelman on Little "Weighting and prediction in sample surveys"](http://www.stat.columbia.edu/~gelman/research/published/littlecomment.pdf)
+* [Bayesian spatial analysis and disease mapping: tools to enhance
+planning and implementation of a schistosomiasis control
+programme in Tanzania](https://onlinelibrary.wiley.com/doi/epdf/10.1111/j.1365-3156.2006.01594.x)
+* [DAGs for Bayesian hierarchical models?](https://discourse.datamethods.org/t/dags-for-bayesian-hierarchical-models/4024)
+* [https://www.esri.com/about/newsroom/arcuser/unequal-probability-based-spatial-sampling/](https://www.esri.com/about/newsroom/arcuser/unequal-probability-based-spatial-sampling/)
+* [https://stats.stackexchange.com/questions/137356/difference-between-design-based-approach-and-model-based-approach](https://stats.stackexchange.com/questions/137356/difference-between-design-based-approach-and-model-based-approach)
+* [https://errorstatistics.com/2020/04/20/s-senn-randomisation-is-not-about-balance-nor-about-homogeneity-but-about-randomness-guest-post/amp/](https://errorstatistics.com/2020/04/20/s-senn-randomisation-is-not-about-balance-nor-about-homogeneity-but-about-randomness-guest-post/amp/)
+* [https://errorstatistics.com/2012/07/09/stephen-senn-randomization-ratios-and-rationality-rescuing-the-randomized-clinical-trial-from-its-critics/](https://errorstatistics.com/2012/07/09/stephen-senn-randomization-ratios-and-rationality-rescuing-the-randomized-clinical-trial-from-its-critics/)
+* [https://pubmed.ncbi.nlm.nih.gov/10861325/](https://pubmed.ncbi.nlm.nih.gov/10861325/)
+* [https://journals.lww.com/epidem/pages/articleviewer.aspx?year=2004&issue=09000&article=00020&type=Fulltext](https://journals.lww.com/epidem/pages/articleviewer.aspx?year=2004&issue=09000&article=00020&type=Fulltext)
+* [Active case finding algorithms](https://www.tandfonline.com/doi/full/10.1080/16549716.2019.1646024)
+* [https://projecteuclid.org/download/pdfview_1/euclid.ba/1422884984](https://projecteuclid.org/download/pdfview_1/euclid.ba/1422884984)
+* [https://projecteuclid.org/euclid.ss/1494489813](https://projecteuclid.org/euclid.ss/1494489813)

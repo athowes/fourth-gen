@@ -1,0 +1,27 @@
+script: script.R
+
+artefacts:
+  - data:
+      description: Main paper, appendix, and figures and tables .pdf
+      filenames:
+        - paper.pdf
+        - appendix.pdf
+  - data:
+      description: Main paper, appendix, and figures and tables .tex
+      filenames:
+        - paper.tex
+        - appendix.tex
+
+resources:
+  - paper.Rmd
+  - appendix.Rmd
+  - citations.bib
+  - preamble.tex
+
+packages:
+  - rmarkdown
+  - dplyr
+  - ggplot2
+  - forcats
+  - tidyverse
+  - patchwork

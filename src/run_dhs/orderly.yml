@@ -1,0 +1,29 @@
+script: script.R
+
+artefacts:
+  - data:
+      description: Simulated results of a number of DHS surveys
+      filenames:
+        - results.rds
+
+packages:
+  - dplyr
+  - forcats
+  - ggplot2
+  - INLA
+  - naomi
+  - readr
+  - scales
+  - sf
+  - spdep
+  - tidyr
+  - purrr
+  - stringr
+  - Matrix
+  - stats
+
+depends:
+  data_manicaland:
+    id: latest
+    use:
+      depends/data.rds: data.rds

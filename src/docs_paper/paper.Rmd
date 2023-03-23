@@ -1,0 +1,253 @@
+---
+title: Bayesian survey design to guide the end of AIDS
+subtitle: |
+  Adam Howes (`ath19@ic.ac.uk`)
+bibliography: citations.bib
+biblio-style: imsart-nameyear # alternative: imsart-number
+output:
+  pdf_document:
+    toc: yes
+    number_sections: yes
+    keep_tex: yes
+    includes:
+      in_header: preamble.tex
+---
+
+# Abstract {-}
+
+As the HIV epidemic enters its fifth decade, meeting the need for timely, cost-effective, robust surveillance requires advancement of a new survey archetype.
+Although household surveys provide estimates which are nationally representative, they are prohibitively expensive to carry out, and so only typically occur every four or five years. Furthermore, household surveys are statistically inefficient, failing to leverage prior responses or other sources of data to guide sampling effort.
+We propose the use of an adaptive, model-based, sampling approach called Bayesian survey design (BSD).
+We show that our approach enhances the efficiency and responsiveness of HIV surveys, whilst reducing the cost and logistical complexity compared to existing practise.
+
+```{r echo = FALSE}
+options(scipen = 100)
+
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE,
+  dpi = 320,
+  cache = TRUE,
+  out.width = "95%",
+  fig.align = 'center'
+)
+```
+
+\newpage
+
+# Introduction\label{sec:intro}
+
+There exists a fundamental conflict between Bayesian decision theory and randomisation [@o1987monte].
+@gelman2008objections writes from the perspective of a critic of Bayesian statistics that:
+
+> The mathematics of Bayesian decision theory lead inexorably to the idea that random sampling and random treatment allocation are inefficient, that the best designs are deterministic. I have no quarrel with the mathematics here, the mistake lies deeper in the philosophical foundations, the idea that the goal of statistics is to make an optimal decision.
+
+In the field of disease surveillance, there is a good argument to be made that the reason we collect data is to make an optimal decision, to invest the limited resources available to limit the burden of disease as much as possible.
+
+There is widespread precedent for the use of prior information to guide sampling effort and improve efficiency the basis for techniques such as stratification, including the use of explicit models to determine strata [@godfrey1984model].
+
+Our proposed sampling method could be carried out continuously, rather than once every four or five years.
+This would allow hiring permanent staff, saving much of the costs associated to training.
+
+Other relevant points to discuss include covariate adjustment, matching, adaptive clinical trials, randomised control trials, active case finding algorithms [@choun2019performance], data defect [@meng2018statistical; @bradley2021unrepresentative].
+
+The remainder of this paper is organised as follows.
+In Section \ref{sec:background} we review the existing approach of national household surveys, before describing ideas from probabilistic numerics which we apply in Section \ref{sec:methodology} to create a Bayesian approach to survey design.
+In Section \ref{sec:experiments} we demonstrate our approach via simulations using population cohort data from the Manicaland Project population HIV cohort.
+We discuss our conclusions and recommendations for future work in Section \ref{sec:discussion}.
+
+# Background\label{sec:background}
+
+## Survey design and household surveys
+
+In survey sampling [@lohr2009sampling] a subset of sampling units from a sampled population are selected.
+Ideally, the sampled population corresponds to the target population of interest.
+For example, the population of interest might be all individuals aged 15-49 in a particular country.
+The subset of sampling units are selected from a list of all possible sampling units called a sampling frame.
+Sampling units may not correspond to the unit upon which measurements are made, called the observational unit and multiple stages of sampling units may be used.
+To quantify uncertainty based on sampling variability it is important to use a probability sample, where each observational unit has a known, non-zero probability $\pi_k = \mathbb{P}(\text{unit } k \text{ in sample}) > 0$ of being included in the sample.
+Keeping track of these probabilities by using survey weights $w_k = 1 / \pi_k$ is one way to take the representativeness of the sample into account.
+
+The Demographic and Health Survey [@measure2012sampling] typically employs two-stage household-based sampling design in which, at the first stage, an enumeration area (EA) is selected, before, in the second stage, households are chosen from within each chosen EA.
+This design is also known as a two-stage cluster sample, where the clusters or primary sampling units (PSUs) correspond to EAs and the secondary sampling units (SSUs) correspond to households.
+Cluster sampling reduces sample efficiency as members within a cluster tend to be more similar than those between clusters.
+However, in practise cluster sampling convenient and, when clusters are defined geographically, less costly than the alternatives.
+In the first stage of the DHS, a fixed number of urban and rural EAs from each region are selected by probability proportional to size (number of households) sampling.
+Unlike clustering, stratification tends to increase sample efficiency. 
+
+Sample efficiency and cost are two central considerations for running any survey.
+Rather than managing these considerations with techniques like clustering and stratification, we will see that BSD explicitly uses an acquisition function to balance the potential information gain and cost of each new sample.
+
+## Probabilistic numerics
+
+BSD takes inspiration from probabilistic numerical methods [@cockayne2019bayesian] like Bayesian optimisation [@movckus1975bayesian; @snoek2012practical] and Bayesian numerical integration [@diaconis1988bayesian; @briol2019probabilistic; @zhu2020bayesian] which use statistical models to approach numerical analysis problems.
+
+For example, in numerical integration design points $q_{1:J} \in \mathcal{Q}^n$ may be used to estimate integrals
+\begin{equation}
+\mathbb{E}_p[f] = \int_\mathcal{Q} f(q) p(q) \text{d}q \approx \frac{1}{J} \sum_{j = 1}^J f(q_j) = \widehat{\mathbb{E}}_p[f], \label{eq:bq}
+\end{equation}
+where $f$ is the objective function and $p$ is a probability density.
+In adaptive Bayesian numerical integration, design points $q_{j+1}$ are sequentially chosen based on a model $\hat f$ for the objective function trained on all previous data $f(q_{1:j})$.
+This is in contrast to classical quadrature approaches which typically select all $J$ design points at the outset.
+The model $\hat f$ is combined with an acquisition function $a: \mathcal{Q} \to \mathbb{R}$ whose role is to encourage selection of points which result in favourable estimator properties.
+An example of such a property is minimising the variance.
+Given data $q_{1:n}$, the next point selected to be included in the design $q_{i + 1}$ can be found by maximising the acquisition function
+\begin{equation}
+q_{j + 1} \in \argmax_{q \in \mathcal{Q}} a(q) \label{eq:acquisition}
+\end{equation}
+This typically results in selecting design points with good coverage of the space $\mathcal{Q}$ whilst being concentrated in regions which contribute most to the integral.
+In many ways the goals of numerical integration and survey design are analogous.
+Both look to make statements about an objective function $f$ on a broader domain $\mathcal{Q}$ based upon a limited number of samples $f(q_{1:J})$.
+
+A combination of model and acquisition function can also be used to solve optimisation problems.
+In optimisation the aim is to find a minimiser $q^\star \in \argmin_{q \in \mathcal{Q}} f(q)$ of the objective function $f$ or failing that some value $q$ such that $|f(q) - f(q^\star)|$ is small.
+As with Bayesian quadrature, a model and acquisition function may be used to approach this problem.
+Bayesian optimisation algorithms often initially explore the space, before only later spending samples to refine the most promising minima.
+
+BSD applies the same principle of probabilistic numerics, namely the use of a statistical model and acquisition function, to survey design.
+Depending on the goals of the survey, the acquisition function in BSD may look more similar to those used in either quadrature or optimisation tasks.
+This particular issue, as well as a broader outline of our methodology, is discussed in the following section.
+
+# Methodology\label{sec:methodology}
+
+## Outline
+
+BSD is an active learning approach to survey design where new elements of the design are chosen based upon existing information.
+Like the above probabilistic numerical methods, BSD is based upon combination of a statistical model and acquisition function.
+
+In analogy to the numerical integration example in Section \ref{sec:background}, the design space $\mathcal{Q}$ of a survey corresponds to the sampled population, that is a collection of all units $\mathcal{U} = \{1, \ldots, N\}$.
+Each unit may be associated to covariates $x_i \in \mathcal{X}$\footnote{We suppose that the covariates may be categorised as either spatial $s$, temporal $t$, or other $z$ such that $\mathcal{X} = \mathcal{S} \times \mathcal{T} \times \mathcal{Z}$.} and outcomes $y_i \in \mathcal{Y}$.
+The cost of sampling unit $i$ could be determined by its covariates such that $c_i = c(x_i)$.
+
+Suppose that we wish to use BSD to perform a household prevalence survey in a particular country.
+The objective function $f$ is the true underlying HIV prevalence and $\hat f$ is a model of HIV prevalence.
+The model $\hat f$ must be at least of the resolution of the sampling unit.
+Though in multi-stage sampling designs, it is possible to combine BSD with other sampling approaches.
+For example, in analogy to the DHS approach, an area-level model $\hat f$ may be used to select EAs using BSD, before selecting households with another approach, such that a household-level model is not required.
+Note that this type of approach may have something in common with existing online stratified sampling approaches such as @bennett2010online.
+
+One possible goal for a national household prevalence survey is to precisely estimate national prevalence.
+This is equivalent to accurately estimating the integral of $f$ over the sampled population.
+As such, a suitable acquisition function for this task would aim to minimise the posterior variance of this integral.
+More broadly, appropriate acquisition function choice depends upon the aims of the survey, which must first be elicited before being represented mathematically.
+This process might be challenging as the aims of any survey may be numerous, vague, and difficult for multiple actors to precisely agree upon.
+Examples of other survey goals include determining if a quantity is above or below a threshold, such as would be required for the 90-90-90 and 95-95-95 HIV goals.
+We expect that complex acquisition functions may be composed by combination of simpler acquisition functions.
+
+## Acquisition functions
+
+**Distance costs**
+Suppose that the cost of taking sample $j + 1$ is proportional to its spatial distance from sample $j$ such that $c_{j + 1} = c(|s_{j + 1} - s_j|)$.
+
+**Composition of acquisition functions**
+Separate acquisition functions $a_1, \ldots, a_A$ may be composed together to obtain a joint acquisition function $a$.
+
+**Effects of batch acquisition**
+In a realistic survey setting, refitting the emulator after each new data point is impractical.
+Rather than selecting a single new point to be sampled, batch acquisition functions select many.
+
+## Concerns
+
+**Incorrect model**
+BSD is a model-based method and will be inefficient when the model used is incorrect.
+For example, if the model claims with high certainty that an area has low prevalence, then BSD may not chose to sample units in that area, never learning that it was wrong.
+The cost of using more information to guide sampling is that if that information is misleading then the method will perform poorly.
+However, it is unclear that choosing not to use relevant information is preferable, particularly in resource constrained settings where we do not have the luxury of disregarding our prior in exchange for robustness.
+
+**Incorrect acquisition function**
+The results of a DHS survey are used for a wide variety of purposes.
+If the acquisition function is not properly designed, then BSD may over optimise for a single, narrowly defined goal such that the results are less broadly useful.
+
+**Over-complication**
+BSD may face higher levels of implementation, logistics and data processing challenges than other, simpler approaches.
+The DHS surveys use a relatively simple sampling design for this reason [@measure2012sampling], noting that "in large-scale surveys non-sampling errors (coverage errors, errors commited in survey implementation and data processing, etc.) are usually the most important sources of error".
+
+**Wrong application**
+HIV prevalence may prove not be the best outcome to demonstrate BSD because it changes very slowly over time.
+Other application areas such as tracking food security, or other more rapidly evolving diseases such as coronavirus, may be more well suited.
+
+**Bad incentives**
+Randomisation reduces the risk of any experimenter adversarially choosing among designs to favour one hypothesis.
+
+## Expected behavior
+
+**Spatio-temporal**
+We expect to observe that in spatio-temporal models, as uncertainty increases over over time, spatial locations are returned to for sampling.
+
+**Evidence synthesis**
+There may be more complex behaviours for models which integrate multiple sources of evidence.
+For example, a model which integrates household survey prevalence data and ANC prevalence data might have ANC random effects which could be informed by surveying close to ANC sites.
+As such, although some behaviours of BSD, such as achieving spatial balance, may closely resemble other, simpler, approaches, in simple cases for more complex evidence synthesis models BSD may display types behaviour which may not be anticipated as easily.
+
+## Multilevel regression and poststratification
+
+Incorporating survey weights into model-based SAE estimators [@chen2014use] is challenging.
+@gelman2007struggles puts it simply by stating that "survey weighting is a mess". 
+Rather than survey weighting, BSD could use poststratification, a technique which, like weighting, accounts for sample non-representativeness.
+
+Poststratification is most well known as a part of "multilevel regression and poststratification" (MRP) [@gelman1997poststratification], a technique popular predominantly in the political science literature.
+MRP combines a SAE (multilevel) model for sparse data together with a poststratification step.
+Poststratification involves collecting demographic information about the target population (e.g. age, sex, ethnicity -- these are known as poststratification variables), which can also be collected during the survey for each respondent.
+The multilevel model is used to estimate the quantity of interest for each combination of the poststratification variables, called cells.
+Population representative estimates can then be calculated by aggregating cell estimates in proportion to target population demographics.
+
+Further work in BSD may look to incorporate additional poststratification variables such as age into the acquisition function by modelling them, further informing the selection process.
+
+# Experiments\label{sec:experiments}
+
+## Synthetic indicator data
+
+## Population cohort indicator data
+
+As a part of the  Manicaland general population cohort study [@Gregsone015898] six censuses of all households have been taken across twelve sites in Manicaland province, Zimbabwe between 1998 and 2013.
+Manicaland province is an ideal setting:
+\begin{itemize}
+    \item Manicaland province is at the ``leading edge'' of what high HIV burden epidemics will look like in the years to come. There is a very high prevalence HIV epidemic, but HIV incidence has declined rapidly and ART coverage is high.
+    \item The province has a varied HIV epidemiology, including a mix of urban and rural populations, mix of industries, and is traversed by key transportation routes from the capital Harare to other countries.
+\end{itemize}
+
+The Manicaland data provides a unique opportunity to evaluate survey designs in a realistic setting where the truth is known.
+We use simulations to carry out two experiments:
+\begin{enumerate}
+    \item \textbf{Empirical simulations} We use historical population cohort data from the Manicaland Project population HIV cohort to simulate survey samples and compare results to the full cohort data to evaluate alternative designs and biases.
+    \item \textbf{Synthetic population simulations} We use the PopART-IBM [@pickles2021popart] applied to the Manicaland cohort population to simulate future HIV epidemic scenarios and sample designs within the population. Simulated survey results are compared to ``true'' epidemic indicators produced by model simulations. Model simulations represent HIV epidemic dynamics and health system engagements among population risk groups, demographic groups, and districts within Manicaland province. 
+\end{enumerate}
+
+## Empirical simulations
+
+We consider the survey sampling design strategies given by Table~\ref{tab:sampling-designs}.
+We simulate $S$ designs indexed by $s$ from each strategy.
+For each design strategy $d$ and round $t$ of the survey we compute direct estimates $\hat p_{dt}^s$ for the proportion of individuals with value one for the indicator under consideration at round $t$.
+We compare the collection of direct survey estimates $\{\hat p_{dt}^s\}_{s = 1}^S$ to the true proportion $p_t$ using the mean squared error (MSE), which may be decomposed as a sum of variance and bias terms as follows
+\begin{equation}
+    \text{MSE}_{dt} = \frac{1}{S} \sum_s \left(\hat p_t - p_{dt}^s \right)^2 = \text{Var}_{dt}(\hat p_{dt}^s) + \text{Bias}(\hat p_{dt}^s, p_t)^2.
+\end{equation}
+We compare each design according to $\text{MSE}_d = \sum_t \text{MSE}_{dt}$.
+
+\begin{table}
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+Sampling design strategy & Details \\ 
+ \midrule
+\hypertarget{D1}{D1}. DHS & Two-stage cluster design: probability-proportional-to-size sampling of EAs stratified within each district by urban and rural status, followed by systematic sampling of households. \\
+\hypertarget{D2}{D2}. EA-BSD & Two-stage cluster design: BSD of EAs with posterior variance acquisition function and distance costs, followed by systematic sampling of households. For the first survey round we use D1. \\
+\hypertarget{D3}{D3}. HH-BSD & BSD at the household level with posterior variance acquisition function and distance costs. For the first survey round we use D1.\\
+\bottomrule
+\end{tabularx}
+\caption{All sampling designs considered.}
+\label{tab:sampling-designs}
+\end{table}
+
+## Synthetic population simulations
+
+# Discussion \label{sec:discussion}
+
+# Acknowledgements {-}
+
+AH was supported by the EPSRC Centre for Doctoral Training in Modern Statistics and Statistical Machine Learning (EP/S023151/1).
+
+\newpage
+
+# Bibliography {-}
+
